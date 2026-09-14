@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Brute Force - Apresentação Escolar</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --orange: #FF6B2B;
+            --orange-light: #FF8F5C;
+            --orange-dark: #CC4400;
+            --orange-glow: rgba(255, 107, 43, 0.4);
+            --blue: #1E90FF;
+            --blue-light: #5CB8FF;
+            --blue-dark: #0060CC;
+            --blue-glow: rgba(30, 144, 255, 0.4);
+            --bg: #0A0E17;
+            --bg-card: rgba(15, 22, 36, 0.85);
+            --fg: #E8EDF5;
+            --muted: #6B7A94;
+            --border: rgba(255, 107, 43, 0.15);
+            --card-border: rgba(30, 144, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fundo animado */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(30, 144, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 144, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            animation: blobPulse 8s ease-in-out infinite alternate;
+        }
+
+        .bg-blob.orange {
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 107, 43, 0.08);
+            top: -150px;
+            right: -100px;
+        }
+
+        .bg-blob.blue {
+            width: 600px;
+            height: 600px;
+            background: rgba(30, 144, 255, 0.06);
+            bottom: -200px;
+            left: -150px;
+            animation-delay: -4s;
+        }
+
+        @keyframes blobPulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.3); opacity: 1; }
+        }
+
+        /* Partículas */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            animation: particleFloat linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* Layout */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* Cabeçalho */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        header .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: rgba(255, 107, 43, 0.06);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--orange-light);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            animation: fadeInDown 0.6s ease-out 0.1s both;
+        }
+
+        header h1 .text-orange { color: var(--orange); }
+        header h1 .text-blue { color: var(--blue); }
+
+        header p {
+            font-size: 17px;
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            animation: fadeInDown 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 32px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(30, 144, 255, 0.25);
+            box-shadow: 0 0 40px rgba(30, 144, 255, 0.05);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blue), var(--orange), transparent);
+            opacity: 0.4;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .card-title i {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .card-title .icon-orange {
+            background: rgba(255, 107, 43, 0.12);
+            color: var(--orange);
+        }
+
+        .card-title .icon-blue {
+            background: rgba(30, 144, 255, 0.12);
+            color: var(--blue);
+        }
+
+        /* Grid principal */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Input de senha */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px var(--orange-glow);
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            padding: 14px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            color: var(--fg);
+            letter-spacing: 1px; /* Reduzido de 3px para 1px para suportar 40 caracteres */
+        }
+
+        .input-wrapper input::placeholder {
+            color: rgba(107, 122, 148, 0.5);
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
+        .toggle-password {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 14px 16px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: var(--orange);
+        }
+
+        /* Barra de força */
+        .strength-bar-container {
+            margin-bottom: 24px;
+        }
+
+        .strength-bar-container .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .strength-bar-container .label-row span {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .strength-label {
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .strength-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s ease, background 0.5s ease;
+        }
+
+        /* Info chips */
+        .info-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--muted);
+            transition: all 0.3s;
+        }
+
+        .chip.active {
+            border-color: var(--orange);
+            color: var(--orange-light);
+            background: rgba(255, 107, 43, 0.08);
+        }
+
+        .chip i { font-size: 10px; }
+
+        /* Botão */
+        .btn-attack {
+            width: 100%;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            color: white;
+            box-shadow: 0 4px 20px rgba(255, 107, 43, 0.25);
+        }
+
+        .btn-attack:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 107, 43, 0.35);
+        }
+
+        .btn-attack:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-attack:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-attack .ripple {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: translateX(-100%);
+        }
+
+        .btn-attack.running .ripple {
+            animation: btnRipple 1.5s ease-in-out infinite;
+        }
+
+        @keyframes btnRipple {
+            to { transform: translateX(100%); }
+        }
+
+        /* Grid de força bruta */
+        .brute-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+            gap: 3px;
+            margin-bottom: 20px;
+            min-height: 200px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .brute-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .brute-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .brute-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 43, 0.2);
+            border-radius: 4px;
+        }
+
+        .brute-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--muted);
+            transition: all 0.15s;
+            opacity: 0.3;
+        }
+
+        .brute-cell.scanning {
+            opacity: 1;
+            color: var(--blue-light);
+            background: rgba(30, 144, 255, 0.08);
+            border: 1px solid rgba(30, 144, 255, 0.15);
+        }
+
+        .brute-cell.match {
+            color: var(--orange);
+            background: rgba(255, 107, 43, 0.15);
+            border: 1px solid rgba(255, 107, 43, 0.3);
+            animation: cellMatch 0.4s ease-out;
+        }
+
+        .brute-cell.found {
+            color: #fff;
+            background: var(--orange);
+            border-color: var(--orange);
+            font-weight: 700;
+            animation: cellFound 0.6s ease-out;
+            box-shadow: 0 0 12px var(--orange-glow);
+        }
+
+        @keyframes cellMatch {
+            0% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes cellFound {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Estatísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-box .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            transition: color 0.3s;
+        }
+
+        .stat-box .stat-label {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Card de resultado - tempo */
+        .result-card {
+            grid-column: 1 / -1;
+        }
+
+        .time-display {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .time-display .time-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(28px, 4vw, 48px);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--orange), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .time-display .time-unit {
+            font-size: 15px;
+            color: var(--muted);
+        }
+
+        .breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .breakdown-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .breakdown-item .b-label {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .breakdown-item .b-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--fg);
+        }
+
+        /* Barra de progresso */
+        .progress-container {
+            margin: 16px 0;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--blue), var(--orange));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--orange-glow);
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Canvas de tentativas ao vivo */
+        .live-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .live-canvas-container canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Notificação toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(20px);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: rgba(255, 107, 43, 0.15);
+            border: 1px solid rgba(255, 107, 43, 0.3);
+            color: var(--orange-light);
+        }
+
+        .toast.info {
+            background: rgba(30, 144, 255, 0.15);
+            border: 1px solid rgba(30, 144, 255, 0.3);
+            color: var(--blue-light);
+        }
+
+        /* Rodapé educacional */
+        .edu-note {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(30, 144, 255, 0.04);
+            border: 1px solid rgba(30, 144, 255, 0.08);
+        }
+
+        .edu-note i {
+            color: var(--blue);
+            margin-right: 8px;
+        }
+
+        .edu-note p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* Animação de entrada */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out both;
+        }
+
+        .fade-in:nth-child(1) { animation-delay: 0.3s; }
+        .fade-in:nth-child(2) { animation-delay: 0.4s; }
+        .fade-in:nth-child(3) { animation-delay: 0.5s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Linha de código animada */
+        .code-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            padding: 3px 0;
+            opacity: 0.6;
+        }
+
+        .code-line .keyword { color: var(--orange); }
+        .code-line .func { color: var(--blue); }
+        .code-line .string { color: #50FA7B; }
+        .code-line .comment { color: #444D5C; }
+
+        /* Cursor piscante */
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--orange);
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Scanline sutil */
+        .scanline-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.015) 2px,
+                rgba(0, 0, 0, 0.015) 4px
+            );
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Elementos de fundo -->
+    <div class="bg-grid"></div>
+    <div class="bg-blob orange"></div>
+    <div class="bg-blob blue"></div>
+    <div class="particles" id="particles"></div>
+    <div class="scanline-overlay"></div>
+
+    <div class="container">
+        <header>
+            <div class="badge">
+                <i class="fas fa-shield-halved"></i>
+                Simulador Educativo
+            </div>
+            <h1>
+                <span class="text-orange">Brute Force</span> <span class="text-blue">Explicado</span>
+            </h1>
+            <p>Entenda como ataques de forca bruta funcionam e por que senhas fortes sao essenciais para sua seguranca digital.</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Card de entrada -->
+            <div class="card fade-in">
+                <div class="card-title">
+                    <i class="fas fa-keyboard icon-orange"></i>
+                    Digite uma Senha
+                </div>
+
+                <div class="input-group">
+                    <label>Senha para Analise</label>
+                    <div class="input-wrapper">
+                        <!-- ALTERADO: maxlength aumentado para 40 -->
+                        <input type="password" id="passwordInput" placeholder="Digite aqui..." maxlength="40" autocomplete="off" aria-label="Campo de senha">
+                        <button class="toggle-password" id="toggleBtn" type="button" aria-label="Alternar visibilidade da senha">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="strength-bar-container">
+                    <div class="label-row">
+                        <span>Forca da Senha</span>
+                        <span class="strength-label" id="strengthLabel">---</span>
+                    </div>
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                </div>
+
+                <div class="info-chips" id="infoChips">
+                    <div class="chip" data-type="lower">
+                        <i class="fas fa-font"></i> Minusculas
+                    </div>
+                    <div class="chip" data-type="upper">
+                        <i class="fas fa-font"></i> Maiusculas
+                    </div>
+                    <div class="chip" data-type="digits">
+                        <i class="fas fa-hashtag"></i> Numeros
+                    </div>
+                    <div class="chip" data-type="symbols">
+                        <i class="fas fa-at"></i> Simbolos
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="code-line"><span class="comment">// logica simulada do ataque:</span></div>
+                    <div class="code-line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="string">0</span>; i &lt; combinacoes; i++) {</div>
+                    <div class="code-line">&nbsp;&nbsp;tentativa = <span class="func">gerarCombinacao</span>(i);</div>
+                    <div class="code-line">&nbsp;&nbsp;<span class="keyword">if</span> (tentativa === senha) <span class="keyword">return</span> i;<span class="cursor"></span></div>
+                    <div class="code-line">}</div>
+                </div>
+
+                <button class="btn-attack" id="attackBtn" disabled>
+                    <span class="ripple"></span>
+                    <i class="fas fa-crosshairs"></i>
+                    <span id="attackBtnText">Iniciar Simulacao</span>
+                </button>
+            </div>
+
+            <!-- Card de visualização -->
+            <div class="card fade-in">
+                <div class="card-title">
+                    <i class="fas fa-terminal icon-blue"></i>
+                    Forca Bruta ao Vivo
+                </div>
+
+                <div class="live-canvas-container">
+                    <canvas id="liveCanvas"></canvas>
+                </div>
+
+                <div class="brute-grid" id="bruteGrid"></div>
+
+                <div class="progress-container" id="progressContainer" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressAttempts">0 tentativas</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="statSpeed" style="color: var(--blue);">0</div>
+                        <div class="stat-label">Tentativas/s</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statTotal" style="color: var(--orange);">0</div>
+                        <div class="stat-label">Combinacoes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statCharset" style="color: var(--blue-light);">0</div>
+                        <div class="stat-label">Caracteres</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statLength" style="color: var(--orange-light);">0</div>
+                        <div class="stat-label">Tamanho</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de resultado -->
+            <div class="card result-card fade-in" id="resultCard" style="display: none;">
+                <div class="card-title">
+                    <i class="fas fa-clock icon-orange"></i>
+                    Tempo Estimado para Quebra
+                </div>
+
+                <div class="time-display">
+                    <div class="time-value" id="timeValue">---</div>
+                    <div class="time-unit" id="timeUnit">aguardando simulacao...</div>
+                </div>
+
+                <div class="breakdown" id="breakdown"></div>
+            </div>
+        </div>
+
+        <div class="edu-note fade-in">
+            <p>
+                <i class="fas fa-graduation-cap"></i>
+                Esta simulacao tem fins exclusivamente educacionais. O ataque de forca bruta testa todas as combinacoes possiveis ate encontrar a senha correta. Use senhas longas com mistura de maiusculas, minusculas, numeros e simbolos para aumentar exponencialmente o tempo necessario para quebra.
+            </p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========== Elementos do DOM ==========
+        const passwordInput = document.getElementById('passwordInput');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const attackBtn = document.getElementById('attackBtn');
+        const attackBtnText = document.getElementById('attackBtnText');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthLabel = document.getElementById('strengthLabel');
+        const bruteGrid = document.getElementById('bruteGrid');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressAttempts = document.getElementById('progressAttempts');
+        const progressPercent = document.getElementById('progressPercent');
+        const resultCard = document.getElementById('resultCard');
+        const timeValue = document.getElementById('timeValue');
+        const timeUnit = document.getElementById('timeUnit');
+        const breakdown = document.getElementById('breakdown');
+        const liveCanvas = document.getElementById('liveCanvas');
+        const ctx = liveCanvas.getContext('2d');
+        const toastEl = document.getElementById('toast');
+        const chips = document.querySelectorAll('.chip');
+
+        // ========== Estado ==========
+        let isRunning = false;
+        let animationId = null;
+        let passwordVisible = false;
+
+        // ========== Particulas de fundo ==========
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const isOrange = Math.random() > 0.5;
+                p.style.background = isOrange ? 'var(--orange)' : 'var(--blue)';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = (8 + Math.random() * 12) + 's';
+                p.style.animationDelay = (Math.random() * 10) + 's';
+                p.style.width = (1 + Math.random() * 2) + 'px';
+                p.style.height = p.style.width;
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // ========== Toast ==========
+        function showToast(message, type = 'info') {
+            toastEl.className = 'toast ' + type;
+            toastEl.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            setTimeout(() => toastEl.classList.add('show'), 10);
+            setTimeout(() => toastEl.classList.remove('show'), 3500);
+        }
+
+        // ========== Toggle de visibilidade da senha ==========
+        toggleBtn.addEventListener('click', () => {
+            passwordVisible = !passwordVisible;
+            passwordInput.type = passwordVisible ? 'text' : 'password';
+            toggleBtn.innerHTML = `<i class="fas fa-eye${passwordVisible ? '-slash' : ''}"></i>`;
+        });
+
+        // ========== Analise de senha ==========
+        function analyzePassword(pwd) {
+            const hasLower = /[a-z]/.test(pwd);
+            const hasUpper = /[A-Z]/.test(pwd);
+            const hasDigits = /\d/.test(pwd);
+            const hasSymbols = /[^a-zA-Z0-9]/.test(pwd);
+
+            let charsetSize = 0;
+            if (hasLower) charsetSize += 26;
+            if (hasUpper) charsetSize += 26;
+            if (hasDigits) charsetSize += 10;
+            if (hasSymbols) charsetSize += 32;
+
+            charsetSize = Math.max(charsetSize, 1);
+            const combinations = Math.pow(charsetSize, pwd.length);
+            const speed = 1e9; // 1 bilhao de tentativas por segundo (GPU moderna)
+            const seconds = combinations / speed;
+
+            // Pontuacao de forca (0-100)
+            let score = 0;
+            score += pwd.length * 2;
+            if (hasLower) score += 5;
+            if (hasUpper) score += 10;
+            if (hasDigits) score += 10;
+            if (hasSymbols) score += 10;
+            // Bonus por tamanho
+            if (pwd.length >= 8) score += 10;
+            if (pwd.length >= 12) score += 15;
+            if (pwd.length >= 16) score += 10;
+            // Bonus extra para senhas muito longas (20-40)
+            if (pwd.length >= 25) score += 5;
+            if (pwd.length >= 30) score += 5;
+            
+            score = Math.min(100, score);
+
+            return {
+                hasLower, hasUpper, hasDigits, hasSymbols,
+                charsetSize, combinations, seconds, speed, score, length: pwd.length
+            };
+        }
+
+        // ========== Formatação de Tempo (Expandida para 40 caracteres) ==========
+        function formatTime(seconds) { 
+            if (seconds < 0.001) return { value: 'Instantaneo', unit: 'menos de 1 ms' }; 
+            if (seconds < 1) return { value: (seconds * 1000).toFixed(1), unit: 'milissegundos' }; 
+            if (seconds < 60) return { value: seconds.toFixed(2), unit: 'segundos' }; 
+            if (seconds < 3600) return { value: (seconds / 60).toFixed(2), unit: 'minutos' }; 
+            if (seconds < 86400) return { value: (seconds / 3600).toFixed(2), unit: 'horas' }; 
+            if (seconds < 86400 * 365) return { value: (seconds / 86400).toFixed(1), unit: 'dias' }; 
+            
+            // Escalas crescentes para suportar senhas de 40 chars (~10^78 anos)
+            const year = 86400 * 365;
+            
+            if (seconds < year * 1e3) return { value: (seconds / year).toFixed(1), unit: 'mil anos' }; 
+            if (seconds < year * 1e6) return { value: (seconds / (year * 1e3)).toFixed(1), unit: 'milhoes de anos' }; 
+            if (seconds < year * 1e9) return { value: (seconds / (year * 1e6)).toFixed(1), unit: 'bilhoes de anos' }; 
+            if (seconds < year * 1e12) return { value: (seconds / (year * 1e9)).toFixed(1), unit: 'trilhoes de anos' }; 
+            if (seconds < year * 1e15) return { value: (seconds / (year * 1e12)).toFixed(1), unit: 'quatrilhoes de anos' };
+            if (seconds < year * 1e18) return { value: (seconds / (year * 1e15)).toFixed(1), unit: 'quintilhoes de anos' };
+            if (seconds < year * 1e21) return { value: (seconds / (year * 1e18)).toFixed(1), unit: 'sextilhoes de anos' };
+            if (seconds < year * 1e24) return { value: (seconds / (year * 1e21)).toFixed(1), unit: 'septilhoes de anos' };
+            if (seconds < year * 1e27) return { value: (seconds / (year * 1e24)).toFixed(1), unit: 'octilhoes de anos' };
+            if (seconds < year * 1e30) return { value: (seconds / (year * 1e27)).toFixed(1), unit: 'nonilhoes de anos' };
+            if (seconds < year * 1e33) return { value: (seconds / (year * 1e30)).toFixed(1), unit: 'decilhoes de anos' };
+            if (seconds < year * 1e36) return { value: (seconds / (year * 1e33)).toFixed(1), unit: 'undecilhoes de anos' };
+            if (seconds < year * 1e39) return { value: (seconds / (year * 1e36)).toFixed(1), unit: 'duodecilhoes de anos' };
+            if (seconds < year * 1e42) return { value: (seconds / (year * 1e39)).toFixed(1), unit: 'tredecilhoes de anos' };
+            if (seconds < year * 1e45) return { value: (seconds / (year * 1e42)).toFixed(1), unit: 'quattuordecilhoes de anos' };
+            if (seconds < year * 1e48) return { value: (seconds / (year * 1e45)).toFixed(1), unit: 'quindecilhoes de anos' };
+            if (seconds < year * 1e51) return { value: (seconds / (year * 1e48)).toFixed(1), unit: 'sexdecilhoes de anos' };
+            if (seconds < year * 1e54) return { value: (seconds / (year * 1e51)).toFixed(1), unit: 'septendecilhoes de anos' };
+            if (seconds < year * 1e57) return { value: (seconds / (year * 1e54)).toFixed(1), unit: 'octodecilhoes de anos' };
+            if (seconds < year * 1e60) return { value: (seconds / (year * 1e57)).toFixed(1), unit: 'novemdecilhoes de anos' };
+            if (seconds < year * 1e63) return { value: (seconds / (year * 1e60)).toFixed(1), unit: 'vigintilhoes de anos' };
+            if (seconds < year * 1e66) return { value: (seconds / (year * 1e63)).toFixed(1), unit: 'unvigintilhoes de anos' };
+            if (seconds < year * 1e69) return { value: (seconds / (year * 1e66)).toFixed(1), unit: 'duovigintilhoes de anos' };
+            if (seconds < year * 1e72) return { value: (seconds / (year * 1e69)).toFixed(1), unit: 'trevigintilhoes de anos' };
+            if (seconds < year * 1e75) return { value: (seconds / (year * 1e72)).toFixed(1), unit: 'quattuorvigintilhoes de anos' };
+            if (seconds < year * 1e78) return { value: (seconds / (year * 1e75)).toFixed(1), unit: 'quinvigintilhoes de anos' };
+            if (seconds < year * 1e81) return { value: (seconds / (year * 1e78)).toFixed(1), unit: 'sexvigintilhoes de anos' };
+            if (seconds < year * 1e84) return { value: (seconds / (year * 1e81)).toFixed(1), unit: 'septenvigintilhoes de anos' };
+            return { value: '> 10^84', unit: 'anos (Praticamente Infinito)' }; 
+        }
+
+        function formatNumber(n) { 
+            if (n < 1000) return n.toString(); 
+            if (n < 1e6) return (n / 1e3).toFixed(1) + ' mil'; 
+            if (n < 1e9) return (n / 1e6).toFixed(2) + ' M'; 
+            if (n < 1e12) return (n / 1e9).toFixed(2) + ' B'; 
+            if (n < 1e15) return (n / 1e12).toFixed(2) + ' T';
+            if (n < 1e18) return (n / 1e15).toFixed(2) + 'Qua';
+            if (n < 1e21) return (n / 1e18).toFixed(2) + 'Qui';
+            if (n < 1e24) return (n / 1e21).toFixed(2) + 'Sex';
+            if (n < 1e27) return (n / 1e24).toFixed(2) + 'Sep';
+            if (n < 1e30) return (n / 1e27).toFixed(2) + 'Oct';
+            if (n < 1e33) return (n / 1e30).toFixed(2) + 'Non';
+            if (n < 1e36) return (n / 1e33).toFixed(2) + 'Dec';
+            if (n < 1e39) return (n / 1e36).toFixed(2) + 'Und';
+            if (n < 1e42) return (n / 1e39).toFixed(2) + 'Duo';
+            if (n < 1e45) return (n / 1e42).toFixed(2) + 'Tre';
+            if (n < 1e48) return (n / 1e45).toFixed(2) + 'Quat';
+            if (n < 1e51) return (n / 1e48).toFixed(2) + 'Quin';
+            if (n < 1e54) return (n / 1e51).toFixed(2) + 'Sexd';
+            if (n < 1e57) return (n / 1e54).toFixed(2) + 'Sept';
+            if (n < 1e60) return (n / 1e57).toFixed(2) + 'Octd';
+            if (n < 1e63) return (n / 1e60).toFixed(2) + 'Novm';
+            if (n < 1e66) return (n / 1e63).toFixed(2) + 'Vign';
+            if (n < 1e69) return (n / 1e66).toFixed(2) + 'Unvg';
+            if (n < 1e72) return (n / 1e69).toFixed(2) + 'Duov';
+            if (n < 1e75) return (n / 1e71).toFixed(2) + 'Trev';
+            if (n < 1e78) return (n / 1e75).toFixed(2) + 'Qtuo';
+            if (n < 1e81) return (n / 1e78).toFixed(2) + 'Quiv';
+            if (n < 1e84) return (n / 1e81).toFixed(2) + 'Sexv';
+	    return (n / 1e84).toFixed(2) + ' Inf';
+        }
+
+        function updateStrengthUI(analysis) {
+            const { score, hasLower, hasUpper, hasDigits, hasSymbols } = analysis;
+
+            strengthFill.style.width = score + '%';
+
+            // Atualizar chips
+            chips.forEach(chip => {
+                const type = chip.dataset.type;
+                let active = false;
+                if (type === 'lower') active = hasLower;
+                if (type === 'upper') active = hasUpper;
+                if (type === 'digits') active = hasDigits;
+                if (type === 'symbols') active = hasSymbols;
+                chip.classList.toggle('active', active);
+            });
+
+            // Cor e label da forca
+            let color, label;
+            if (score < 20) { color = '#FF4444'; label = 'Muito Fraca'; }
+            else if (score < 40) { color = '#FF8C00'; label = 'Fraca'; }
+            else if (score < 60) { color = '#FFD700'; label = 'Media'; }
+            else if (score < 80) { color = '#50FA7B'; label = 'Forte'; }
+            else { color = '#00FF88'; label = 'Muito Forte'; }
+
+            strengthFill.style.background = color;
+            strengthLabel.style.color = color;
+            strengthLabel.textContent = label;
+        }
+
+        // ========== Atualizacao em tempo real ==========
+        passwordInput.addEventListener('input', () => {
+            const pwd = passwordInput.value;
+            attackBtn.disabled = pwd.length === 0;
+
+            if (pwd.length === 0) {
+                strengthFill.style.width = '0%';
+                strengthLabel.textContent = '---';
+                strengthLabel.style.color = 'var(--muted)';
+                chips.forEach(c => c.classList.remove('active'));
+                return;
+            }
+
+            const analysis = analyzePassword(pwd);
+            updateStrengthUI(analysis);
+
+            // Atualizar stats
+            document.getElementById('statCharset').textContent = analysis.charsetSize;
+            document.getElementById('statLength').textContent = analysis.length;
+            document.getElementById('statTotal').textContent = formatNumber(analysis.combinations);
+        });
+
+        // ========== Gerar grade de forca bruta ==========
+        function buildBruteGrid(size) {
+            bruteGrid.innerHTML = '';
+            const totalCells = Math.min(size * size, 200);
+            for (let i = 0; i < totalCells; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'brute-cell';
+                cell.textContent = ' ';
+                bruteGrid.appendChild(cell);
+            }
+        }
+
+        buildBruteGrid(10);
+
+        // ========== Canvas de tentativas ao vivo ==========
+        function resizeCanvas() {
+            const rect = liveCanvas.parentElement.getBoundingClientRect();
+            liveCanvas.width = rect.width * window.devicePixelRatio;
+            liveCanvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let canvasHistory = [];
+        const MAX_HISTORY = 120;
+
+        function drawCanvas(currentAttempt, maxAttempts) {
+            const w = liveCanvas.width / window.devicePixelRatio;
+            const h = liveCanvas.height / window.devicePixelRatio;
+
+            canvasHistory.push(currentAttempt);
+            if (canvasHistory.length > MAX_HISTORY) canvasHistory.shift();
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Linhas de fundo
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 1;
+            for (let y = 20; y < h; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+
+            if (canvasHistory.length < 2) return;
+
+            const maxVal = Math.max(...canvasHistory, 1);
+            const step = w / (MAX_HISTORY - 1);
+
+            // Preenchimento gradiente
+            const gradient = ctx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, 'rgba(255,107,43,0.15)');
+            gradient.addColorStop(1, 'rgba(30,144,255,0.02)');
+
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            for (let i = 0; i < canvasHistory.length; i++) {
+                const x = i * step;
+                const y = h - (canvasHistory[i] / maxVal) * (h - 20);
+                if (i === 0) ctx.lineTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.lineTo((canvasHistory.length - 1) * step, h);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Linha
+            ctx.beginPath();
+            for (let i = 0; i < canvasHistory.length; i++) {
+                const x = i * step;
+                const y = h - (canvasHistory[i] / maxVal) * (h - 20);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#FF6B2B';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Ponto final
+            const lastX = (canvasHistory.length - 1) * step;
+            const lastY = h - (canvasHistory[canvasHistory.length - 1] / maxVal) * (h - 20);
+            ctx.beginPath();
+            ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#FF6B2B';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(lastX, lastY, 8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,107,43,0.2)';
+            ctx.fill();
+        }
+
+        // Desenhar canvas vazio
+        function drawEmptyCanvas() {
+            const w = liveCanvas.width / window.devicePixelRatio;
+            const h = liveCanvas.height / window.devicePixelRatio;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = 'rgba(107,122,148,0.3)';
+            ctx.font = '13px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('Aguardando simulacao...', w / 2, h / 2);
+        }
+        drawEmptyCanvas();
+
+        // ========== Simulacao de Forca Bruta ==========
+        function startBruteForce() {
+            if (isRunning) {
+                stopBruteForce();
+                return;
+            }
+
+            const pwd = passwordInput.value;
+            if (!pwd) return;
+
+            const analysis = analyzePassword(pwd);
+            isRunning = true;
+            canvasHistory = [];
+
+            attackBtn.classList.add('running');
+            attackBtnText.textContent = 'Parar Simulacao';
+            attackBtn.querySelector('i').className = 'fas fa-stop';
+
+            progressContainer.style.display = 'block';
+            resultCard.style.display = 'block';
+
+            // Mostrar resultado imediato
+            const time = formatTime(analysis.seconds);
+            timeValue.textContent = time.value;
+            timeUnit.textContent = time.unit;
+
+            // Breakdown
+            breakdown.innerHTML = `
+                <div class="breakdown-item">
+                    <span class="b-label">Total de Combinacoes</span>
+                    <span class="b-value">${formatNumber(analysis.combinations)}</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Tamanho do Conjunto</span>
+                    <span class="b-value">${analysis.charsetSize} caracteres</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Velocidade (GPU)</span>
+                    <span class="b-value">${formatNumber(analysis.speed)}/s</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Comprimento</span>
+                    <span class="b-value">${analysis.length} caracteres</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Tempo em Segundos</span>
+                    <span class="b-value">${analysis.seconds < 0.01 ? '< 0.01' : analysis.seconds.toExponential(2)}s</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Classificacao</span>
+                    <span class="b-value" style="color: ${strengthLabel.color}">${strengthLabel.textContent}</span>
+                </div>
+            `;
+
+            // Construir grade
+            buildBruteGrid(10);
+            const cells = bruteGrid.querySelectorAll('.brute-cell');
+
+            // Charset para simulacao visual
+            let charset = '';
+            if (analysis.hasLower) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (analysis.hasUpper) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (analysis.hasDigits) charset += '0123456789';
+            if (analysis.hasSymbols) charset += '!@#$%&*+-=?';
+            if (!charset) charset = 'a';
+
+            // Velocidade visual ajustada
+            const visualSpeed = Math.min(50, Math.max(5, cells.length));
+            let frame = 0;
+            let simulatedAttempts = 0;
+            // Posicao simulada na combinacao (0 a combinations-1)
+            let currentPos = 0;
+
+            function animate() {
+                if (!isRunning) return;
+
+                frame++;
+
+                // Avancar posicao simulada
+                const jumpPerFrame = Math.max(1, Math.floor(analysis.combinations / 500));
+                currentPos = Math.min(currentPos + jumpPerFrame, analysis.combinations);
+
+                // Atualizar celulas visuais
+                for (let i = 0; i < cells.length; i++) {
+                    if (frame % 3 === i % 3) {
+                        const charIdx = Math.floor(Math.random() * charset.length);
+                        cells[i].textContent = charset[charIdx];
+                        cells[i].className = 'brute-cell scanning';
+                    }
+                }
+
+                // Simular "match" parcial aleatorio
+                if (frame % 8 === 0) {
+                    const randomIdx = Math.floor(Math.random() * cells.length);
+                    cells[randomIdx].className = 'brute-cell match';
+                    cells[randomIdx].textContent = pwd[Math.floor(Math.random() * pwd.length)] || charset[0];
+                }
+
+                // Tentativa que "encontra" parcialmente
+                if (frame % 15 === 0 && pwd.length > 0) {
+                    const partialIdx = Math.floor(Math.random() * cells.length);
+                    let partialText = '';
+                    for (let c = 0; c < Math.min(pwd.length, 3); c++) {
+                        partialText += Math.random() > 0.5 ? pwd[c] : charset[Math.floor(Math.random() * charset.length)];
+                    }
+                    cells[partialIdx].textContent = partialText;
+                    cells[partialIdx].className = 'brute-cell match';
+                }
+
+                // Simular encontrou a senha ao final
+                const progress = currentPos / analysis.combinations;
+                if (progress >= 0.98 && frame > 60) {
+                    // Encontrou!
+                    const foundIdx = Math.floor(cells.length / 2);
+                    cells[foundIdx].textContent = pwd.substring(0, 4);
+                    cells[foundIdx].className = 'brute-cell found';
+
+                    if (foundIdx + 1 < cells.length) {
+                        cells[foundIdx + 1].textContent = pwd.substring(4, 8);
+                        cells[foundIdx + 1].className = 'brute-cell found';
+                        cells[foundIdx + 1].style.animationDelay = '0.1s';
+                    }
+
+                    progressFill.style.width = '100%';
+                    progressAttempts.textContent = formatNumber(analysis.combinations) + ' tentativas';
+                    progressPercent.textContent = '100%';
+
+                    document.getElementById('statSpeed').textContent = formatNumber(analysis.speed);
+                    drawCanvas(analysis.speed, analysis.speed);
+
+                    showToast('Senha encontrada! (simulacao visual)', 'success');
+                    isRunning = false;
+                    attackBtn.classList.remove('running');
+                    attackBtnText.textContent = 'Iniciar Simulacao';
+                    attackBtn.querySelector('i').className = 'fas fa-crosshairs';
+                    return;
+                }
+
+                // Atualizar progresso
+                const displayProgress = Math.min(progress * 100, 99.9);
+                progressFill.style.width = displayProgress + '%';
+                simulatedAttempts = currentPos;
+                progressAttempts.textContent = formatNumber(simulatedAttempts) + ' tentativas';
+                progressPercent.textContent = displayProgress.toFixed(1) + '%';
+
+                document.getElementById('statSpeed').textContent = formatNumber(analysis.speed);
+
+                // Canvas
+                const canvasVal = analysis.speed * (0.8 + Math.random() * 0.4);
+                drawCanvas(canvasVal, analysis.speed * 1.5);
+
+                animationId = requestAnimationFrame(animate);
+            }
+
+            animationId = requestAnimationFrame(animate);
+            showToast('Simulacao iniciada - analisando combinacoes...', 'info');
+        }
+
+        function stopBruteForce() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            attackBtn.classList.remove('running');
+            attackBtnText.textContent = 'Iniciar Simulacao';
+            attackBtn.querySelector('i').className = 'fas fa-crosshairs';
+            showToast('Simulacao interrompida.', 'info');
+        }
+
+        attackBtn.addEventListener('click', startBruteForce);
+
+        // Permitir Enter para iniciar
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !attackBtn.disabled) {
+                startBruteForce();
+            }
+        });
+    </script>
+</body>
+</html>
