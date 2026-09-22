@@ -763,9 +763,9 @@
                 Simulador Educativo
             </div>
             <h1>
-                <span class="text-orange">Brute Force</span> <span class="text-blue">Explicado</span>
+                <span class="text-orange">Força Bruta</span> <span class="text-blue">Explicado</span>
             </h1>
-            <p>Entenda como ataques de forca bruta funcionam e por que senhas fortes sao essenciais para sua seguranca digital.</p>
+            <p>Entenda como ataques de força bruta funcionam e por que senhas fortes sao essenciais para sua segurança digital.</p>
         </header>
 
         <div class="main-grid">
@@ -777,7 +777,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Senha para Analise</label>
+                    <label>Senha para Análise</label>
                     <div class="input-wrapper">
                         <!-- ALTERADO: maxlength aumentado para 40 -->
                         <input type="password" id="passwordInput" placeholder="Digite aqui..." maxlength="50" autocomplete="off" aria-label="Campo de senha">
@@ -789,7 +789,7 @@
 
                 <div class="strength-bar-container">
                     <div class="label-row">
-                        <span>Forca da Senha</span>
+                        <span>Força da Senha</span>
                         <span class="strength-label" id="strengthLabel">---</span>
                     </div>
                     <div class="strength-bar">
@@ -799,21 +799,21 @@
 
                 <div class="info-chips" id="infoChips">
                     <div class="chip" data-type="lower">
-                        <i class="fas fa-font"></i> Minusculas
+                        <i class="fas fa-font"></i> Minúsculas
                     </div>
                     <div class="chip" data-type="upper">
-                        <i class="fas fa-font"></i> Maiusculas
+                        <i class="fas fa-font"></i> Maiúsculas
                     </div>
                     <div class="chip" data-type="digits">
-                        <i class="fas fa-hashtag"></i> Numeros
+                        <i class="fas fa-hashtag"></i> Números
                     </div>
                     <div class="chip" data-type="symbols">
-                        <i class="fas fa-at"></i> Simbolos
+                        <i class="fas fa-at"></i> Símbolos
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div class="code-line"><span class="comment">// logica simulada do ataque:</span></div>
+                    <div class="code-line"><span class="comment">// lógica simulada do ataque:</span></div>
                     <div class="code-line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="string">0</span>; i &lt; combinacoes; i++) {</div>
                     <div class="code-line">&nbsp;&nbsp;tentativa = <span class="func">gerarCombinacao</span>(i);</div>
                     <div class="code-line">&nbsp;&nbsp;<span class="keyword">if</span> (tentativa === senha) <span class="keyword">return</span> i;<span class="cursor"></span></div>
@@ -823,7 +823,7 @@
                 <button class="btn-attack" id="attackBtn" disabled>
                     <span class="ripple"></span>
                     <i class="fas fa-crosshairs"></i>
-                    <span id="attackBtnText">Iniciar Simulacao</span>
+                    <span id="attackBtnText">Iniciar Simulação</span>
                 </button>
             </div>
 
@@ -857,7 +857,7 @@
                     </div>
                     <div class="stat-box">
                         <div class="stat-value" id="statTotal" style="color: var(--orange);">0</div>
-                        <div class="stat-label">Combinacoes</div>
+                        <div class="stat-label">Combinações</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-value" id="statCharset" style="color: var(--blue-light);">0</div>
@@ -879,7 +879,7 @@
 
                 <div class="time-display">
                     <div class="time-value" id="timeValue">---</div>
-                    <div class="time-unit" id="timeUnit">aguardando simulacao...</div>
+                    <div class="time-unit" id="timeUnit">aguardando simulação...</div>
                 </div>
 
                 <div class="breakdown" id="breakdown"></div>
@@ -889,7 +889,7 @@
         <div class="edu-note fade-in">
             <p>
                 <i class="fas fa-graduation-cap"></i>
-                Esta simulacao tem fins exclusivamente educacionais. O ataque de forca bruta testa todas as combinacoes possiveis ate encontrar a senha correta. Use senhas longas com mistura de maiusculas, minusculas, numeros e simbolos para aumentar exponencialmente o tempo necessario para quebra.
+                Esta simulação tem fins exclusivamente educacionais. O ataque de força bruta testa todas as combinações possiveis até encontrar a senha correta. Use senhas longas com mistura de letras maiúsculas, minúsculas, números e símbolos para aumentar exponencialmente o tempo necessário para quebra.
             </p>
         </div>
     </div>
