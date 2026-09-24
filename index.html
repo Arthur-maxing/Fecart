@@ -929,6 +929,12 @@
             info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
         };
 
+        // ============================================================
+        //  >>> NOVO (1): velocidade do ataque em CONSTANTE
+        //  "1 b/s" = 1 bilhao de tentativas por segundo (GPU moderna)
+        // ============================================================
+        const TENTATIVAS_POR_SEGUNDO = 1e9;
+
         // ========== Elementos do DOM ==========
         const passwordInput = document.getElementById('passwordInput');
         const toggleBtn = document.getElementById('toggleBtn');
@@ -954,6 +960,13 @@
         let isRunning = false;
         let animationId = null;
         let passwordVisible = false;
+
+        // >>> NOVO: dados da simulacao em curso
+        let analiseAtual = null;  // analise da senha (usada so no final)
+        let senhaAtual = '';      // senha que esta sendo "quebrada"
+        let candidatos = [];      // palpites exibidos na grade
+        let simInicio = 0;        // marco inicial da simulacao
+        let simDuracao = 0;       // duracao total da simulacao (ms)
 
         // guarda as celulas "found" para poder mascarar/desmascarar ao vivo
         let foundDisplays = [];
@@ -1019,8 +1032,9 @@
 
             charsetSize = Math.max(charsetSize, 1);
             const combinations = Math.pow(charsetSize, pwd.length);
-            const speed = 1e9; // 1 bilhao de tentativas por segundo (GPU moderna)
-            const seconds = combinations / speed;
+
+            // >>> NOVO (1): usa a constante global em vez de valor local
+            const seconds = combinations / TENTATIVAS_POR_SEGUNDO;
 
             // Pontuacao de forca (0-100)
             let score = 0;
@@ -1041,7 +1055,9 @@
 
             return {
                 hasLower, hasUpper, hasDigits, hasSymbols,
-                charsetSize, combinations, seconds, speed, score, length: pwd.length
+                charsetSize, combinations, seconds,
+                speed: TENTATIVAS_POR_SEGUNDO, // >>> NOVO (1)
+                score, length: pwd.length
             };
         }
 
@@ -1164,6 +1180,9 @@
         passwordInput.addEventListener('input', () => {
             const pwd = passwordInput.value;
             attackBtn.disabled = pwd.length === 0;
+
+            // >>> NOVO (2): esconde o resultado anterior ao digitar nova senha
+            if (!isRunning) resultCard.style.display = 'none';
 
             if (pwd.length === 0) {
                 strengthFill.style.width = '0%';
@@ -1292,6 +1311,33 @@
         }
         drawEmptyCanvas();
 
+        // ========== Auxiliares da simulacao ==========
+        function montarCharset(pwd) {
+            let cs = '';
+            if (/[a-z]/.test(pwd)) cs += 'abcdefghijklmnopqrstuvwxyz';
+            if (/[A-Z]/.test(pwd)) cs += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (/\d/.test(pwd)) cs += '0123456789';
+            if (/[^a-zA-Z0-9]/.test(pwd)) cs += '!@#$%&*()-_=+[]{};:,.<>?/~^';
+            return cs || 'abcdefghijklmnopqrstuvwxyz';
+        }
+
+        // gera um "palpite" aleatorio (as vezes acerta a 1a letra, p/ drama visual)
+        function gerarCandidato(charset, pwd) {
+            let s = '';
+            const forcarParcial = Math.random() < 0.15;
+            for (let i = 0; i < pwd.length; i++) {
+                s += (i === 0 && forcarParcial)
+                    ? pwd.charAt(0)
+                    : charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            return s;
+        }
+
+        // reduz o texto para caber na celula da grade
+        function trechoParaCelula(s) {
+            return s.length > 5 ? s.slice(0, 4) + '\u2026' : s;
+        }
+
         // ========== Simulacao de Forca Bruta ==========
         function startBruteForce() {
             if (isRunning) {
@@ -1303,147 +1349,129 @@
             if (!pwd) return;
 
             const analysis = analyzePassword(pwd);
+
+            // >>> NOVO (2): guarda a analise para exibir SOMENTE no final
+            analiseAtual = analysis;
+            senhaAtual = pwd;
+
             isRunning = true;
             canvasHistory = [];
             foundDisplays = []; // limpa referencias da simulacao anterior
+            passwordInput.readOnly = true; // trava edicao durante a simulacao
 
             attackBtn.classList.add('running');
             attackBtnText.textContent = 'Parar Simulacao';
             attackBtn.querySelector('i').innerHTML = ICONS.stop;
 
             progressContainer.style.display = 'block';
-            resultCard.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressAttempts.textContent = '0 tentativas';
+            progressPercent.textContent = '0%';
 
-            // Mostrar resultado imediato
-            const time = formatTime(analysis.seconds);
-            timeValue.textContent = time.value;
-            timeUnit.textContent = time.unit;
+            // >>> NOVO (2): resultado oculto ate o calculo terminar
+            resultCard.style.display = 'none';
+            timeValue.textContent = '---';
+            timeUnit.textContent = 'calculando...';
+            breakdown.innerHTML = '';
 
-            // Breakdown
-            breakdown.innerHTML = `
-                <div class="breakdown-item">
-                    <span class="b-label">Total de Combinacoes</span>
-                    <span class="b-value">${formatNumber(analysis.combinations)}</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="b-label">Tamanho do Conjunto</span>
-                    <span class="b-value">${analysis.charsetSize} caracteres</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="b-label">Velocidade (GPU)</span>
-                    <span class="b-value">${formatNumber(analysis.speed)}/s</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="b-label">Comprimento</span>
-                    <span class="b-value">${analysis.length} caracteres</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="b-label">Tempo em Segundos</span>
-                    <span class="b-value">${analysis.seconds < 0.01 ? '&lt; 0.01' : analysis.seconds.toExponential(2)}s</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="b-label">Classificacao</span>
-                    <span class="b-value" style="color: ${strengthLabel.color}">${strengthLabel.textContent}</span>
-                </div>
-            `;
+            // Estatisticas do ataque
+            document.getElementById('statSpeed').textContent = formatNumber(TENTATIVAS_POR_SEGUNDO);
+            document.getElementById('statCharset').textContent = analysis.charsetSize;
+            document.getElementById('statLength').textContent = analysis.length;
+            document.getElementById('statTotal').textContent = formatNumber(analysis.combinations);
 
-            // Construir grade
-            buildBruteGrid(10);
-            const cells = bruteGrid.querySelectorAll('.brute-cell');
+            // Monta a grade de candidatos ("palpites" do ataque)
+            const charsetStr = montarCharset(pwd);
+            const cells = Array.from(bruteGrid.children);
+            candidatos = cells.map(() => gerarCandidato(charsetStr, pwd));
+            candidatos[candidatos.length - 1] = pwd; // a senha fica na ultima celula
+            cells.forEach(cell => {
+                cell.className = 'brute-cell';
+                cell.textContent = ' ';
+            });
 
-            // Charset para simulacao visual
-            let charset = '';
-            if (analysis.hasLower) charset += 'abcdefghijklmnopqrstuvwxyz';
-            if (analysis.hasUpper) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if (analysis.hasDigits) charset += '0123456789';
-            if (analysis.hasSymbols) charset += '!@#$%&*+-=?';
-            if (!charset) charset = 'a';
+            // Duracao da simulacao: senhas mais fortes demoram mais (entre 6s e 14s)
+            simDuracao = Math.min(6000 + analysis.length * 350 + analysis.score * 45, 14000);
+            simInicio = performance.now();
 
-            let frame = 0;
-            let currentPos = 0; // posicao simulada na combinacao (0 a combinations-1)
-            const startTime = performance.now();
+            animationId = requestAnimationFrame(loopSimulacao);
+        }
 
-            function animate() {
-                if (!isRunning) return;
+        function loopSimulacao(now) {
+            if (!isRunning) return;
 
-                frame++;
+            const decorrido = now - simInicio;
+            const progresso = Math.min(decorrido / simDuracao, 1);
 
-                // Avancar posicao simulada (chega ao fim em ~500 frames)
-                const jumpPerFrame = Math.max(1, Math.floor(analysis.combinations / 500));
-                currentPos = Math.min(currentPos + jumpPerFrame, analysis.combinations);
+            const cells = Array.from(bruteGrid.children);
+            const scanIndex = Math.floor(progresso * cells.length);
 
-                // Atualizar celulas visuais
-                for (let i = 0; i < cells.length; i++) {
-                    if (frame % 3 === i % 3) {
-                        const charIdx = Math.floor(Math.random() * charset.length);
-                        cells[i].textContent = charset[charIdx];
-                        cells[i].className = 'brute-cell scanning';
-                    }
+            // Avanca o "scan" pelas celulas da grade
+            for (let i = 0; i < cells.length; i++) {
+                const cell = cells[i];
+
+                if (i < scanIndex) {
+                    // celula ja testada (destaca se acertou a 1a letra)
+                    const combinouParcial = candidatos[i].charAt(0) === senhaAtual.charAt(0);
+                    cell.className = 'brute-cell' + (combinouParcial ? ' match' : '');
+                    cell.textContent = (candidatos[i] === senhaAtual)
+                        ? textoSeguro(trechoParaCelula(candidatos[i]))
+                        : trechoParaCelula(candidatos[i]);
+                } else if (i === scanIndex && progresso < 1) {
+                    // celula sendo testada agora
+                    cell.className = 'brute-cell scanning';
+                    cell.textContent = (candidatos[i] === senhaAtual)
+                        ? textoSeguro(trechoParaCelula(candidatos[i]))
+                        : trechoParaCelula(candidatos[i]);
+                } else {
+                    // celula ainda nao testada
+                    cell.className = 'brute-cell';
+                    cell.textContent = ' ';
                 }
-
-                // Simular "match" parcial aleatorio
-                if (frame % 8 === 0) {
-                    const randomIdx = Math.floor(Math.random() * cells.length);
-                    cells[randomIdx].className = 'brute-cell match';
-                    // so exibe caracteres reais da senha se ela estiver visivel
-                    cells[randomIdx].textContent = passwordVisible
-                        ? (pwd[Math.floor(Math.random() * pwd.length)] || charset[0])
-                        : charset[Math.floor(Math.random() * charset.length)];
-                }
-
-                // Tentativa que "encontra" parcialmente
-                if (frame % 15 === 0 && pwd.length > 0) {
-                    const partialIdx = Math.floor(Math.random() * cells.length);
-                    let partialText = '';
-                    for (let c = 0; c < Math.min(pwd.length, 3); c++) {
-                        // quando oculta, usa apenas caracteres aleatorios do charset
-                        if (passwordVisible && Math.random() > 0.5) {
-                            partialText += pwd[c];
-                        } else {
-                            partialText += charset[Math.floor(Math.random() * charset.length)];
-                        }
-                    }
-                    cells[partialIdx].textContent = partialText;
-                    cells[partialIdx].className = 'brute-cell match';
-                }
-
-                // Estatisticas ao vivo (tentativas/s simuladas)
-                const elapsed = (performance.now() - startTime) / 1000;
-                const liveSpeed = currentPos / Math.max(elapsed, 0.05);
-                document.getElementById('statSpeed').textContent = formatNumber(liveSpeed);
-
-                // Progresso
-                const pct = analysis.combinations > 0
-                    ? Math.min(100, (currentPos / analysis.combinations) * 100)
-                    : 100;
-                progressFill.style.width = pct + '%';
-                progressAttempts.textContent = formatNumber(currentPos) + ' tentativas';
-                progressPercent.textContent = (pct < 10 ? pct.toFixed(2) : pct.toFixed(1)) + '%';
-
-                // Grafico
-                drawCanvas(currentPos, analysis.combinations);
-
-                // Fim: senha "encontrada"
-                if (currentPos >= analysis.combinations) {
-                    const foundCount = Math.min(pwd.length, cells.length);
-                    for (let i = 0; i < foundCount; i++) {
-                        const snippet = pwd[i];
-                        cells[i].textContent = textoSeguro(snippet);
-                        cells[i].className = 'brute-cell found';
-                        foundDisplays.push({ cell: cells[i], snippet: snippet });
-                    }
-                    progressFill.style.width = '100%';
-                    progressPercent.textContent = '100%';
-                    progressAttempts.textContent = formatNumber(analysis.combinations) + ' tentativas';
-                    document.getElementById('statSpeed').textContent = formatNumber(analysis.speed);
-                    showToast('Senha encontrada na simulacao!', 'success');
-                    stopBruteForce();
-                    return;
-                }
-
-                animationId = requestAnimationFrame(animate);
             }
-            animate();
+
+            // Tentativas acumuladas (acelerando, para dar drama)
+            const tentativas = Math.max(1, Math.round(analiseAtual.combinations * Math.pow(progresso, 1.6)));
+
+            progressFill.style.width = (progresso * 100).toFixed(1) + '%';
+            progressPercent.textContent = Math.floor(progresso * 100) + '%';
+            progressAttempts.textContent = formatNumber(tentativas) + ' tentativas';
+
+            drawCanvas(tentativas, analiseAtual.combinations);
+
+            if (progresso >= 1) {
+                finalizarSimulacao();
+                return;
+            }
+
+            animationId = requestAnimationFrame(loopSimulacao);
+        }
+
+        function finalizarSimulacao() {
+            isRunning = false;
+
+            const cells = Array.from(bruteGrid.children);
+            const foundCell = cells[cells.length - 1];
+            const snippet = trechoParaCelula(senhaAtual);
+
+            foundCell.className = 'brute-cell found';
+            foundCell.textContent = textoSeguro(snippet);
+            foundDisplays.push({ cell: foundCell, snippet: snippet });
+
+            progressFill.style.width = '100%';
+            progressPercent.textContent = '100%';
+            progressAttempts.textContent = formatNumber(analiseAtual.combinations) + ' tentativas';
+
+            attackBtn.classList.remove('running');
+            attackBtnText.textContent = 'Nova Simulacao';
+            attackBtn.querySelector('i').innerHTML = ICONS.crosshairs;
+            passwordInput.readOnly = false;
+
+            showToast('Senha encontrada! Calculo concluido.', 'success');
+
+            // >>> NOVO (2): o resultado so aparece AGORA,
+            // depois que o calculo terminou
+            mostrarResultadoFinal();
         }
 
         function stopBruteForce() {
@@ -1455,9 +1483,49 @@
             attackBtn.classList.remove('running');
             attackBtnText.textContent = 'Iniciar Simulacao';
             attackBtn.querySelector('i').innerHTML = ICONS.crosshairs;
+            passwordInput.readOnly = false;
+            // obs.: se parar no meio, o resultado NAO aparece
+            // (só é exibido quando o cálculo termina)
+        }
+
+        // ============================================================
+        //  >>> NOVO (2): exibe o resultado SOMENTE no fim da simulacao
+        // ============================================================
+        function mostrarResultadoFinal() {
+            if (!analiseAtual) return;
+
+            const a = analiseAtual;
+            const time = formatTime(a.seconds);
+
+            timeValue.textContent = time.value;
+            timeUnit.textContent = time.unit;
+
+            breakdown.innerHTML = `
+                <div class="breakdown-item">
+                    <span class="b-label">Total de Combinacoes</span>
+                    <span class="b-value">${formatNumber(a.combinations)}</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Tamanho do Conjunto</span>
+                    <span class="b-value">${a.charsetSize} caracteres</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Velocidade (GPU)</span>
+                    <span class="b-value">${formatNumber(TENTATIVAS_POR_SEGUNDO)}/s</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="b-label">Comprimento</span>
+                    <span class="b-value">${a.length} caracteres</span>
+                </div>
+            `;
+
+            resultCard.style.display = 'block'; // resultado aparece so agora
         }
 
         attackBtn.addEventListener('click', startBruteForce);
+
+        // >>> NOVO (1): a velocidade e fixa, exibida desde o carregamento
+        document.getElementById('statSpeed').textContent = formatNumber(TENTATIVAS_POR_SEGUNDO);
     </script>
 </body>
 </html>
