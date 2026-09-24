@@ -1025,17 +1025,17 @@
             // Pontuacao de forca (0-100)
             let score = 0;
             score += pwd.length * 2;
-            if (hasLower) score += 5;
+            if (hasLower) score += 10;
             if (hasUpper) score += 10;
-            if (hasDigits) score += 10;
-            if (hasSymbols) score += 10;
+            if (hasDigits) score += 5;
+            if (hasSymbols) score += 15;
             // Bonus por tamanho
             if (pwd.length >= 8) score += 10;
-            if (pwd.length >= 12) score += 15;
+            if (pwd.length >= 12) score += 10;
             if (pwd.length >= 16) score += 10;
             // Bonus extra para senhas muito longas (20-50)
-            if (pwd.length >= 25) score += 5;
-            if (pwd.length >= 30) score += 5;
+            if (pwd.length >= 25) score += 15;
+            if (pwd.length >= 30) score += 15;
 
             score = Math.min(100, score);
 
