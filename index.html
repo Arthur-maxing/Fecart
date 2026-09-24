@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador de Brute Force - Apresentação Escolar</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Funciona 100% offline: sem fontes externas, sem CDN -->
     <style>
         :root {
             --orange: #FF6B2B;
@@ -22,6 +21,9 @@
             --muted: #6B7A94;
             --border: rgba(255, 107, 43, 0.15);
             --card-border: rgba(30, 144, 255, 0.12);
+            /* Fontes locais (fallbacks de sistema) */
+            --font-mono: 'JetBrains Mono', 'Cascadia Mono', Consolas, Menlo, 'DejaVu Sans Mono', 'Courier New', monospace;
+            --font-sans: 'Space Grotesk', 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
         * {
@@ -31,12 +33,32 @@
         }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font-sans);
             background: var(--bg);
             color: var(--fg);
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
+        }
+
+        /* ===== Icones SVG inline (substituem o Font Awesome) ===== */
+        i.icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-style: normal;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        i.icon svg {
+            width: 1em;
+            height: 1em;
+            display: block;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         /* Fundo animado */
@@ -133,7 +155,7 @@
             border-radius: 50px;
             border: 1px solid var(--border);
             background: rgba(255, 107, 43, 0.06);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 12px;
             color: var(--orange-light);
             letter-spacing: 2px;
@@ -273,10 +295,10 @@
             border: none;
             outline: none;
             padding: 14px 16px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 18px;
             color: var(--fg);
-            letter-spacing: 1px; /* Reduzido de 3px para 1px para suportar 40 caracteres */
+            letter-spacing: 1px;
         }
 
         .input-wrapper input::placeholder {
@@ -352,7 +374,7 @@
             padding: 6px 14px;
             border-radius: 50px;
             font-size: 12px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             border: 1px solid rgba(255, 255, 255, 0.06);
             background: rgba(0, 0, 0, 0.2);
             color: var(--muted);
@@ -373,7 +395,7 @@
             padding: 16px 32px;
             border: none;
             border-radius: 12px;
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font-sans);
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -448,7 +470,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 11px;
             border-radius: 4px;
             background: rgba(0, 0, 0, 0.25);
@@ -507,7 +529,7 @@
         }
 
         .stat-box .stat-value {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 4px;
@@ -532,7 +554,7 @@
         }
 
         .time-display .time-value {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: clamp(28px, 4vw, 48px);
             font-weight: 700;
             background: linear-gradient(135deg, var(--orange), var(--blue));
@@ -571,7 +593,7 @@
         }
 
         .breakdown-item .b-value {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 15px;
             font-weight: 500;
             color: var(--fg);
@@ -604,7 +626,7 @@
             font-size: 11px;
             color: var(--muted);
             margin-top: 6px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
         }
 
         /* Canvas de tentativas ao vivo */
@@ -697,7 +719,7 @@
 
         /* Linha de código animada */
         .code-line {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 12px;
             color: var(--muted);
             padding: 3px 0;
@@ -759,7 +781,7 @@
     <div class="container">
         <header>
             <div class="badge">
-                <i class="fas fa-shield-halved"></i>
+                <i class="icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></i>
                 Simulador Educativo
             </div>
             <h1>
@@ -772,17 +794,16 @@
             <!-- Card de entrada -->
             <div class="card fade-in">
                 <div class="card-title">
-                    <i class="fas fa-keyboard icon-orange"></i>
+                    <i class="icon icon-orange"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="9"/><line x1="10" y1="9" x2="10" y2="9"/><line x1="14" y1="9" x2="14" y2="9"/><line x1="18" y1="9" x2="18" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/></svg></i>
                     Digite uma Senha
                 </div>
 
                 <div class="input-group">
                     <label>Senha para Análise</label>
                     <div class="input-wrapper">
-                        <!-- ALTERADO: maxlength aumentado para 40 -->
                         <input type="password" id="passwordInput" placeholder="Digite aqui..." maxlength="50" autocomplete="off" aria-label="Campo de senha">
                         <button class="toggle-password" id="toggleBtn" type="button" aria-label="Alternar visibilidade da senha">
-                            <i class="fas fa-eye"></i>
+                            <i class="icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></i>
                         </button>
                     </div>
                 </div>
@@ -799,16 +820,16 @@
 
                 <div class="info-chips" id="infoChips">
                     <div class="chip" data-type="lower">
-                        <i class="fas fa-font"></i> Minúsculas
+                        <i class="icon"><svg viewBox="0 0 24 24"><path d="M5 19L12 4l7 15"/><line x1="8" y1="14" x2="16" y2="14"/></svg></i> Minúsculas
                     </div>
                     <div class="chip" data-type="upper">
-                        <i class="fas fa-font"></i> Maiúsculas
+                        <i class="icon"><svg viewBox="0 0 24 24"><path d="M4 19L9 4l5 15"/><line x1="5.5" y1="14" x2="12.5" y2="14"/><line x1="16" y1="19" x2="22" y2="19"/></svg></i> Maiúsculas
                     </div>
                     <div class="chip" data-type="digits">
-                        <i class="fas fa-hashtag"></i> Números
+                        <i class="icon"><svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></i> Números
                     </div>
                     <div class="chip" data-type="symbols">
-                        <i class="fas fa-at"></i> Símbolos
+                        <i class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg></i> Símbolos
                     </div>
                 </div>
 
@@ -822,7 +843,7 @@
 
                 <button class="btn-attack" id="attackBtn" disabled>
                     <span class="ripple"></span>
-                    <i class="fas fa-crosshairs"></i>
+                    <i class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></i>
                     <span id="attackBtnText">Iniciar Simulação</span>
                 </button>
             </div>
@@ -830,7 +851,7 @@
             <!-- Card de visualização -->
             <div class="card fade-in">
                 <div class="card-title">
-                    <i class="fas fa-terminal icon-blue"></i>
+                    <i class="icon icon-blue"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 9l3 3-3 3"/><line x1="13" y1="15" x2="17" y2="15"/></svg></i>
                     Forca Bruta ao Vivo
                 </div>
 
@@ -873,7 +894,7 @@
             <!-- Card de resultado -->
             <div class="card result-card fade-in" id="resultCard" style="display: none;">
                 <div class="card-title">
-                    <i class="fas fa-clock icon-orange"></i>
+                    <i class="icon icon-orange"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></i>
                     Tempo Estimado para Quebra
                 </div>
 
@@ -888,7 +909,7 @@
 
         <div class="edu-note fade-in">
             <p>
-                <i class="fas fa-graduation-cap"></i>
+                <i class="icon"><svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 10v6"/></svg></i>
                 Esta simulação tem fins exclusivamente educacionais. O ataque de força bruta testa todas as combinações possiveis até encontrar a senha correta. Use senhas longas com mistura de letras maiúsculas, minúsculas, números e símbolos para aumentar exponencialmente o tempo necessário para quebra.
             </p>
         </div>
@@ -898,6 +919,16 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // ========== Icones SVG (sem dependencias externas) ==========
+        const ICONS = {
+            eye: '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+            eyeSlash: '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+            crosshairs: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>',
+            stop: '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+            check: '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>',
+            info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+        };
+
         // ========== Elementos do DOM ==========
         const passwordInput = document.getElementById('passwordInput');
         const toggleBtn = document.getElementById('toggleBtn');
@@ -924,18 +955,18 @@
         let animationId = null;
         let passwordVisible = false;
 
-        // NOVO: guarda as celulas "found" para poder mascarar/desmascarar ao vivo
+        // guarda as celulas "found" para poder mascarar/desmascarar ao vivo
         let foundDisplays = [];
 
-        // NOVO: devolve o texto real se a senha estiver visivel, senao uma mascara
+        // devolve o texto real se a senha estiver visivel, senao uma mascara
         function textoSeguro(snippet) {
-            return passwordVisible ? snippet : '•'.repeat(snippet.length);
+            return passwordVisible ? snippet : '\u2022'.repeat(snippet.length);
         }
 
-        // NOVO: atualiza as celulas que mostraram a senha conforme a visibilidade
+        // atualiza as celulas que mostraram a senha conforme a visibilidade
         function refreshFoundCells() {
             foundDisplays.forEach(item => {
-                item.cell.textContent = passwordVisible ? item.snippet : '•'.repeat(item.snippet.length);
+                item.cell.textContent = passwordVisible ? item.snippet : '\u2022'.repeat(item.snippet.length);
             });
         }
 
@@ -960,7 +991,7 @@
         // ========== Toast ==========
         function showToast(message, type = 'info') {
             toastEl.className = 'toast ' + type;
-            toastEl.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            toastEl.innerHTML = `<i class="icon">${type === 'success' ? ICONS.check : ICONS.info}</i> ${message}`;
             setTimeout(() => toastEl.classList.add('show'), 10);
             setTimeout(() => toastEl.classList.remove('show'), 3500);
         }
@@ -969,8 +1000,8 @@
         toggleBtn.addEventListener('click', () => {
             passwordVisible = !passwordVisible;
             passwordInput.type = passwordVisible ? 'text' : 'password';
-            toggleBtn.innerHTML = `<i class="fas fa-eye${passwordVisible ? '-slash' : ''}"></i>`;
-            refreshFoundCells(); // NOVO: ajusta celulas "found" em tempo real
+            toggleBtn.innerHTML = `<i class="icon">${passwordVisible ? ICONS.eyeSlash : ICONS.eye}</i>`;
+            refreshFoundCells(); // ajusta celulas "found" em tempo real
         });
 
         // ========== Analise de senha ==========
@@ -1002,10 +1033,10 @@
             if (pwd.length >= 8) score += 10;
             if (pwd.length >= 12) score += 15;
             if (pwd.length >= 16) score += 10;
-            // Bonus extra para senhas muito longas (20-40)
+            // Bonus extra para senhas muito longas (20-50)
             if (pwd.length >= 25) score += 5;
             if (pwd.length >= 30) score += 5;
-            
+
             score = Math.min(100, score);
 
             return {
@@ -1014,105 +1045,99 @@
             };
         }
 
-// ============================================================
-//  TABELA DE ESCALAS (escala curta, padrao no Brasil)
-//  Para expandir a capacidade, basta adicionar novas linhas.
-// ============================================================
-const ESCALAS = [
-    { exp: 3,   curto: 'mil', nome: 'mil' },
-    { exp: 6,   curto: 'M',   nome: 'milhoes' },
-    { exp: 9,   curto: 'B',   nome: 'bilhoes' },
-    { exp: 12,  curto: 'T',   nome: 'trilhoes' },
-    { exp: 15,  curto: 'Qa',  nome: 'quatrilhoes' },
-    { exp: 18,  curto: 'Qi',  nome: 'quintilhoes' },
-    { exp: 21,  curto: 'Sx',  nome: 'sextilhoes' },
-    { exp: 24,  curto: 'Sp',  nome: 'septilhoes' },
-    { exp: 27,  curto: 'Oc',  nome: 'octilhoes' },
-    { exp: 30,  curto: 'No',  nome: 'nonilhoes' },
-    { exp: 33,  curto: 'Dc',  nome: 'decilhoes' },
-    { exp: 36,  curto: 'Ud',  nome: 'undecilhoes' },
-    { exp: 39,  curto: 'Dd',  nome: 'duodecilhoes' },
-    { exp: 42,  curto: 'Td',  nome: 'tredecilhoes' },
-    { exp: 45,  curto: 'Qd',  nome: 'quattuordecilhoes' },
-    { exp: 48,  curto: 'Qn',  nome: 'quindecilhoes' },
-    { exp: 51,  curto: 'Sd',  nome: 'sexdecilhoes' },
-    { exp: 54,  curto: 'St',  nome: 'septendecilhoes' },
-    { exp: 57,  curto: 'Od',  nome: 'octodecilhoes' },
-    { exp: 60,  curto: 'Nv',  nome: 'novemdecilhoes' },
-    { exp: 63,  curto: 'Vg',  nome: 'vigintilhoes' },
-    { exp: 66,  curto: 'Uv',  nome: 'unvigintilhoes' },
-    { exp: 69,  curto: 'Dv',  nome: 'duovigintilhoes' },
-    { exp: 72,  curto: 'Tv',  nome: 'trevigintilhoes' },
-    { exp: 75,  curto: 'Qv',  nome: 'quattuorvigintilhoes' },
-    { exp: 78,  curto: 'Qx',  nome: 'quinvigintilhoes' },
-    { exp: 81,  curto: 'Sg',  nome: 'sexvigintilhoes' },
-    { exp: 84,  curto: 'Sv',  nome: 'septenvigintilhoes' },
-    { exp: 87,  curto: 'Ov',  nome: 'octovigintilhoes' },
-    { exp: 90,  curto: 'Nm',  nome: 'novemvigintilhoes' },
-    { exp: 93,  curto: 'Tg',  nome: 'trigintilhoes' }
-];
+        // ============================================================
+        //  TABELA DE ESCALAS (escala curta, padrao no Brasil)
+        // ============================================================
+        const ESCALAS = [
+            { exp: 3,   curto: 'mil', nome: 'mil' },
+            { exp: 6,   curto: 'M',   nome: 'milhoes' },
+            { exp: 9,   curto: 'B',   nome: 'bilhoes' },
+            { exp: 12,  curto: 'T',   nome: 'trilhoes' },
+            { exp: 15,  curto: 'Qa',  nome: 'quatrilhoes' },
+            { exp: 18,  curto: 'Qi',  nome: 'quintilhoes' },
+            { exp: 21,  curto: 'Sx',  nome: 'sextilhoes' },
+            { exp: 24,  curto: 'Sp',  nome: 'septilhoes' },
+            { exp: 27,  curto: 'Oc',  nome: 'octilhoes' },
+            { exp: 30,  curto: 'No',  nome: 'nonilhoes' },
+            { exp: 33,  curto: 'Dc',  nome: 'decilhoes' },
+            { exp: 36,  curto: 'Ud',  nome: 'undecilhoes' },
+            { exp: 39,  curto: 'Dd',  nome: 'duodecilhoes' },
+            { exp: 42,  curto: 'Td',  nome: 'tredecilhoes' },
+            { exp: 45,  curto: 'Qd',  nome: 'quattuordecilhoes' },
+            { exp: 48,  curto: 'Qn',  nome: 'quindecilhoes' },
+            { exp: 51,  curto: 'Sd',  nome: 'sexdecilhoes' },
+            { exp: 54,  curto: 'St',  nome: 'septendecilhoes' },
+            { exp: 57,  curto: 'Od',  nome: 'octodecilhoes' },
+            { exp: 60,  curto: 'Nv',  nome: 'novemdecilhoes' },
+            { exp: 63,  curto: 'Vg',  nome: 'vigintilhoes' },
+            { exp: 66,  curto: 'Uv',  nome: 'unvigintilhoes' },
+            { exp: 69,  curto: 'Dv',  nome: 'duovigintilhoes' },
+            { exp: 72,  curto: 'Tv',  nome: 'trevigintilhoes' },
+            { exp: 75,  curto: 'Qv',  nome: 'quattuorvigintilhoes' },
+            { exp: 78,  curto: 'Qx',  nome: 'quinvigintilhoes' },
+            { exp: 81,  curto: 'Sg',  nome: 'sexvigintilhoes' },
+            { exp: 84,  curto: 'Sv',  nome: 'septenvigintilhoes' },
+            { exp: 87,  curto: 'Ov',  nome: 'octovigintilhoes' },
+            { exp: 90,  curto: 'Nm',  nome: 'novemvigintilhoes' },
+            { exp: 93,  curto: 'Tg',  nome: 'trigintilhoes' }
+        ];
 
-// Notacao cientifica (ex.: 4.53 × 10^98) para valores acima da tabela
-function toScientific(n) {
-    if (!isFinite(n)) return 'Infinito';
-    if (n === 0) return '0';
-    const exp = Math.floor(Math.log10(n));
-    return (n / Math.pow(10, exp)).toFixed(2) + ' × 10^' + exp;
-}
+        // Notacao cientifica (ex.: 4.53 x 10^98)
+        function toScientific(n) {
+            if (!isFinite(n)) return 'Infinito';
+            if (n === 0) return '0';
+            const exp = Math.floor(Math.log10(n));
+            return (n / Math.pow(10, exp)).toFixed(2) + ' \u00d7 10^' + exp;
+        }
 
-// ========== Formatacao de Tempo ==========
-// Suporta de milissegundos ate mais de 10^100 anos.
-// Acima do maior nome da tabela, usa notacao cientifica.
-function formatTime(seconds) {
-    if (!isFinite(seconds)) return { value: '∞', unit: 'praticamente infinito' };
-    if (seconds < 0.001) return { value: 'Instantaneo', unit: 'menos de 1 ms' };
-    if (seconds < 1) return { value: (seconds * 1000).toFixed(1), unit: 'milissegundos' };
-    if (seconds < 60) return { value: seconds.toFixed(2), unit: 'segundos' };
-    if (seconds < 3600) return { value: (seconds / 60).toFixed(2), unit: 'minutos' };
-    if (seconds < 86400) return { value: (seconds / 3600).toFixed(2), unit: 'horas' };
+        // ========== Formatacao de Tempo ==========
+        function formatTime(seconds) {
+            if (!isFinite(seconds)) return { value: '\u221e', unit: 'praticamente infinito' };
+            if (seconds < 0.001) return { value: 'Instantaneo', unit: 'menos de 1 ms' };
+            if (seconds < 1) return { value: (seconds * 1000).toFixed(1), unit: 'milissegundos' };
+            if (seconds < 60) return { value: seconds.toFixed(2), unit: 'segundos' };
+            if (seconds < 3600) return { value: (seconds / 60).toFixed(2), unit: 'minutos' };
+            if (seconds < 86400) return { value: (seconds / 3600).toFixed(2), unit: 'horas' };
 
-    const YEAR = 31536000; // 365 dias
-    if (seconds < YEAR) return { value: (seconds / 86400).toFixed(1), unit: 'dias' };
+            const YEAR = 31536000; // 365 dias
+            if (seconds < YEAR) return { value: (seconds / 86400).toFixed(1), unit: 'dias' };
 
-    const anos = seconds / YEAR;
-    const logAnos = Math.log10(anos);
+            const anos = seconds / YEAR;
+            const logAnos = Math.log10(anos);
 
-    if (logAnos < 3) return { value: anos.toFixed(1), unit: 'anos' };
-    if (logAnos < 6) return { value: (anos / 1e3).toFixed(1), unit: 'mil anos' };
+            if (logAnos < 3) return { value: anos.toFixed(1), unit: 'anos' };
+            if (logAnos < 6) return { value: (anos / 1e3).toFixed(1), unit: 'mil anos' };
 
-    // Encontra o grupo de 3 digitos correto na tabela
-    const grupo = Math.floor(logAnos / 3) * 3;
-    const escala = ESCALAS.find(e => e.exp === grupo);
+            const grupo = Math.floor(logAnos / 3) * 3;
+            const escala = ESCALAS.find(e => e.exp === grupo);
 
-    if (escala) {
-        return { value: (anos / Math.pow(10, grupo)).toFixed(1), unit: escala.nome + ' de anos' };
-    }
+            if (escala) {
+                return { value: (anos / Math.pow(10, grupo)).toFixed(1), unit: escala.nome + ' de anos' };
+            }
 
-    // Acima do ultimo nome conhecido: notacao cientifica
-    const exp10 = Math.floor(logAnos);
-    return { value: (anos / Math.pow(10, exp10)).toFixed(1) + ' × 10^' + exp10, unit: 'anos' };
-}
+            const exp10 = Math.floor(logAnos);
+            return { value: (anos / Math.pow(10, exp10)).toFixed(1) + ' \u00d7 10^' + exp10, unit: 'anos' };
+        }
 
-// ========== Formatacao de Numeros Grandes ==========
-function formatNumber(n) {
-    if (!isFinite(n)) return '∞';
-    if (n < 1000) return Math.round(n).toString();
+        // ========== Formatacao de Numeros Grandes ==========
+        function formatNumber(n) {
+            if (!isFinite(n)) return '\u221e';
+            if (n < 1000) return Math.round(n).toString();
 
-    const log10 = Math.log10(n);
-    const grupo = Math.floor(log10 / 3) * 3;
-    const escala = ESCALAS.find(e => e.exp === grupo);
+            const log10 = Math.log10(n);
+            const grupo = Math.floor(log10 / 3) * 3;
+            const escala = ESCALAS.find(e => e.exp === grupo);
 
-    if (!escala) return toScientific(n); // acima do maior nome
+            if (!escala) return toScientific(n);
 
-    return (n / Math.pow(10, grupo)).toFixed(2) + ' ' + escala.curto;
-}
+            return (n / Math.pow(10, grupo)).toFixed(2) + ' ' + escala.curto;
+        }
 
         function updateStrengthUI(analysis) {
             const { score, hasLower, hasUpper, hasDigits, hasSymbols } = analysis;
 
             strengthFill.style.width = score + '%';
 
-            // Atualizar chips
             chips.forEach(chip => {
                 const type = chip.dataset.type;
                 let active = false;
@@ -1123,7 +1148,6 @@ function formatNumber(n) {
                 chip.classList.toggle('active', active);
             });
 
-            // Cor e label da forca
             let color, label;
             if (score < 20) { color = '#FF4444'; label = 'Muito Fraca'; }
             else if (score < 40) { color = '#FF8C00'; label = 'Fraca'; }
@@ -1152,7 +1176,6 @@ function formatNumber(n) {
             const analysis = analyzePassword(pwd);
             updateStrengthUI(analysis);
 
-            // Atualizar stats
             document.getElementById('statCharset').textContent = analysis.charsetSize;
             document.getElementById('statLength').textContent = analysis.length;
             document.getElementById('statTotal').textContent = formatNumber(analysis.combinations);
@@ -1175,19 +1198,24 @@ function formatNumber(n) {
         // ========== Canvas de tentativas ao vivo ==========
         function resizeCanvas() {
             const rect = liveCanvas.parentElement.getBoundingClientRect();
-            liveCanvas.width = rect.width * window.devicePixelRatio;
-            liveCanvas.height = rect.height * window.devicePixelRatio;
-            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            const dpr = window.devicePixelRatio || 1;
+            liveCanvas.width = Math.max(1, rect.width * dpr);
+            liveCanvas.height = Math.max(1, rect.height * dpr);
+            // CORRIGIDO: setTransform evita o acumulo de escala a cada resize
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
         resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            if (!isRunning) drawEmptyCanvas();
+        });
 
         let canvasHistory = [];
         const MAX_HISTORY = 120;
 
         function drawCanvas(currentAttempt, maxAttempts) {
-            const w = liveCanvas.width / window.devicePixelRatio;
-            const h = liveCanvas.height / window.devicePixelRatio;
+            const w = liveCanvas.width / (window.devicePixelRatio || 1);
+            const h = liveCanvas.height / (window.devicePixelRatio || 1);
 
             canvasHistory.push(currentAttempt);
             if (canvasHistory.length > MAX_HISTORY) canvasHistory.shift();
@@ -1219,8 +1247,7 @@ function formatNumber(n) {
             for (let i = 0; i < canvasHistory.length; i++) {
                 const x = i * step;
                 const y = h - (canvasHistory[i] / maxVal) * (h - 20);
-                if (i === 0) ctx.lineTo(x, y);
-                else ctx.lineTo(x, y);
+                ctx.lineTo(x, y);
             }
             ctx.lineTo((canvasHistory.length - 1) * step, h);
             ctx.closePath();
@@ -1254,11 +1281,12 @@ function formatNumber(n) {
 
         // Desenhar canvas vazio
         function drawEmptyCanvas() {
-            const w = liveCanvas.width / window.devicePixelRatio;
-            const h = liveCanvas.height / window.devicePixelRatio;
+            const dpr = window.devicePixelRatio || 1;
+            const w = liveCanvas.width / dpr;
+            const h = liveCanvas.height / dpr;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = 'rgba(107,122,148,0.3)';
-            ctx.font = '13px "JetBrains Mono", monospace';
+            ctx.font = '13px "JetBrains Mono", Consolas, monospace';
             ctx.textAlign = 'center';
             ctx.fillText('Aguardando simulacao...', w / 2, h / 2);
         }
@@ -1277,11 +1305,11 @@ function formatNumber(n) {
             const analysis = analyzePassword(pwd);
             isRunning = true;
             canvasHistory = [];
-            foundDisplays = []; // NOVO: limpa referencias da simulacao anterior
+            foundDisplays = []; // limpa referencias da simulacao anterior
 
             attackBtn.classList.add('running');
             attackBtnText.textContent = 'Parar Simulacao';
-            attackBtn.querySelector('i').className = 'fas fa-stop';
+            attackBtn.querySelector('i').innerHTML = ICONS.stop;
 
             progressContainer.style.display = 'block';
             resultCard.style.display = 'block';
@@ -1311,7 +1339,7 @@ function formatNumber(n) {
                 </div>
                 <div class="breakdown-item">
                     <span class="b-label">Tempo em Segundos</span>
-                    <span class="b-value">${analysis.seconds < 0.01 ? '< 0.01' : analysis.seconds.toExponential(2)}s</span>
+                    <span class="b-value">${analysis.seconds < 0.01 ? '&lt; 0.01' : analysis.seconds.toExponential(2)}s</span>
                 </div>
                 <div class="breakdown-item">
                     <span class="b-label">Classificacao</span>
@@ -1331,19 +1359,16 @@ function formatNumber(n) {
             if (analysis.hasSymbols) charset += '!@#$%&*+-=?';
             if (!charset) charset = 'a';
 
-            // Velocidade visual ajustada
-            const visualSpeed = Math.min(50, Math.max(5, cells.length));
             let frame = 0;
-            let simulatedAttempts = 0;
-            // Posicao simulada na combinacao (0 a combinations-1)
-            let currentPos = 0;
+            let currentPos = 0; // posicao simulada na combinacao (0 a combinations-1)
+            const startTime = performance.now();
 
             function animate() {
                 if (!isRunning) return;
 
                 frame++;
 
-                // Avancar posicao simulada
+                // Avancar posicao simulada (chega ao fim em ~500 frames)
                 const jumpPerFrame = Math.max(1, Math.floor(analysis.combinations / 500));
                 currentPos = Math.min(currentPos + jumpPerFrame, analysis.combinations);
 
@@ -1360,7 +1385,7 @@ function formatNumber(n) {
                 if (frame % 8 === 0) {
                     const randomIdx = Math.floor(Math.random() * cells.length);
                     cells[randomIdx].className = 'brute-cell match';
-                    // ALTERADO: so exibe caracteres reais da senha se ela estiver visivel
+                    // so exibe caracteres reais da senha se ela estiver visivel
                     cells[randomIdx].textContent = passwordVisible
                         ? (pwd[Math.floor(Math.random() * pwd.length)] || charset[0])
                         : charset[Math.floor(Math.random() * charset.length)];
@@ -1371,7 +1396,7 @@ function formatNumber(n) {
                     const partialIdx = Math.floor(Math.random() * cells.length);
                     let partialText = '';
                     for (let c = 0; c < Math.min(pwd.length, 3); c++) {
-                        // ALTERADO: quando oculta, usa apenas caracteres aleatorios do charset
+                        // quando oculta, usa apenas caracteres aleatorios do charset
                         if (passwordVisible && Math.random() > 0.5) {
                             partialText += pwd[c];
                         } else {
@@ -1382,60 +1407,45 @@ function formatNumber(n) {
                     cells[partialIdx].className = 'brute-cell match';
                 }
 
-                // Simular encontrou a senha ao final
-                const progress = currentPos / analysis.combinations;
-                if (progress >= 0.98 && frame > 60) {
-                    // Encontrou!
-                    const foundIdx = Math.floor(cells.length / 2);
+                // Estatisticas ao vivo (tentativas/s simuladas)
+                const elapsed = (performance.now() - startTime) / 1000;
+                const liveSpeed = currentPos / Math.max(elapsed, 0.05);
+                document.getElementById('statSpeed').textContent = formatNumber(liveSpeed);
 
-                    const snippet1 = pwd.substring(0, 4);                // NOVO
-                    cells[foundIdx].textContent = textoSeguro(snippet1); // ALTERADO
-                    cells[foundIdx].className = 'brute-cell found';
-                    foundDisplays.push({ cell: cells[foundIdx], snippet: snippet1 }); // NOVO
+                // Progresso
+                const pct = analysis.combinations > 0
+                    ? Math.min(100, (currentPos / analysis.combinations) * 100)
+                    : 100;
+                progressFill.style.width = pct + '%';
+                progressAttempts.textContent = formatNumber(currentPos) + ' tentativas';
+                progressPercent.textContent = (pct < 10 ? pct.toFixed(2) : pct.toFixed(1)) + '%';
 
-                    if (foundIdx + 1 < cells.length) {
-                        const snippet2 = pwd.substring(4, 8);            // NOVO
-                        cells[foundIdx + 1].textContent = textoSeguro(snippet2); // ALTERADO
-                        cells[foundIdx + 1].className = 'brute-cell found';
-                        cells[foundIdx + 1].style.animationDelay = '0.1s';
-                        foundDisplays.push({ cell: cells[foundIdx + 1], snippet: snippet2 }); // NOVO
+                // Grafico
+                drawCanvas(currentPos, analysis.combinations);
+
+                // Fim: senha "encontrada"
+                if (currentPos >= analysis.combinations) {
+                    const foundCount = Math.min(pwd.length, cells.length);
+                    for (let i = 0; i < foundCount; i++) {
+                        const snippet = pwd[i];
+                        cells[i].textContent = textoSeguro(snippet);
+                        cells[i].className = 'brute-cell found';
+                        foundDisplays.push({ cell: cells[i], snippet: snippet });
                     }
-
                     progressFill.style.width = '100%';
-                    progressAttempts.textContent = formatNumber(analysis.combinations) + ' tentativas';
                     progressPercent.textContent = '100%';
-
+                    progressAttempts.textContent = formatNumber(analysis.combinations) + ' tentativas';
                     document.getElementById('statSpeed').textContent = formatNumber(analysis.speed);
-                    drawCanvas(analysis.speed, analysis.speed); // [COMPLETADO]
-
-                    // [COMPLETADO] encerrar simulacao com sucesso
-                    isRunning = false;
-                    attackBtn.classList.remove('running');
-                    attackBtnText.textContent = 'Iniciar Simulacao';
-                    attackBtn.querySelector('i').className = 'fas fa-crosshairs';
-
-                    // ALTERADO: toast nao revela a senha se estiver oculta
-                    showToast('Senha encontrada: ' + textoSeguro(pwd), 'success');
+                    showToast('Senha encontrada na simulacao!', 'success');
+                    stopBruteForce();
                     return;
                 }
 
-                // [COMPLETADO] progresso visual continuo
-                const perFrame = Math.floor(analysis.speed / 60);
-                simulatedAttempts += perFrame;
-                progressFill.style.width = (progress * 100).toFixed(1) + '%';
-                progressAttempts.textContent = formatNumber(currentPos) + ' tentativas';
-                progressPercent.textContent = (progress * 100).toFixed(1) + '%';
-                document.getElementById('statSpeed').textContent = formatNumber(analysis.speed);
-
-                drawCanvas(Math.floor(perFrame * (0.7 + Math.random() * 0.6)), perFrame);
-
                 animationId = requestAnimationFrame(animate);
             }
-
             animate();
         }
 
-        // [COMPLETADO] parar simulacao
         function stopBruteForce() {
             isRunning = false;
             if (animationId) {
@@ -1444,11 +1454,9 @@ function formatNumber(n) {
             }
             attackBtn.classList.remove('running');
             attackBtnText.textContent = 'Iniciar Simulacao';
-            attackBtn.querySelector('i').className = 'fas fa-crosshairs';
-            showToast('Simulacao interrompida', 'info');
+            attackBtn.querySelector('i').innerHTML = ICONS.crosshairs;
         }
 
-        // [COMPLETADO] listener do botao
         attackBtn.addEventListener('click', startBruteForce);
     </script>
 </body>
